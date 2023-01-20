@@ -1,6 +1,6 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using DG.Tweening;
 using UnityEngine;
 
@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private PlayerHandler _player;
     [SerializeField] private GameObject _ground;
-    [SerializeField] private GameObject _base;
+    [SerializeField] private ObstacleHandler _base;
     private List<Target> _targets;
 
     private List<ObstacleHandler> _paths;
@@ -24,63 +24,45 @@ public class GameManager : MonoBehaviour
     {
         _paths ??= new List<ObstacleHandler>();
         _targets ??= new List<Target>();
-        SetUpGround();
-    }
-
-    private void SetUpGround()
-    {
-        var _maps = DataManager.instance.map;
-        //Setup base
-        for (int i = 0; i < _maps.Count; i++)
+        GenerateLevel(new Map()
         {
-            var basePosition = Instantiate(_base, _maps[i].position, Quaternion.identity);
-            basePosition.SetActive(true);
-            _targets.Add(new Target()
-            {
-                target = basePosition,
-                path = new Dictionary<int, List<Transform>>()
-            });
-        }
-        for (int i = 0; i < _maps.Count; i++)
-        {
-            for (var i1 = 0; i1 < _maps[i].relate.Count; i1++)
-            {
-                var relate = _maps[i].relate[i1];
-                var direction = (_maps[relate].position - _maps[i].position).normalized;
-                var distance = Vector3.Distance(_maps[i].position, _maps[relate].position);
-                var count = (int) distance;
-                var scale = distance / (int) distance;
-                Vector3 startPosition = _maps[i].position;
-                var path = new List<Transform>();
-                for (int j = 0; j < count; j++)
-                {
-                    var ground = Instantiate(_ground, startPosition + direction * scale, Quaternion.identity);
-                    ground.SetActive(true);
-                    ground.transform.localScale = scale * Vector3.one;
-                    ground.transform.forward = direction;
-                    startPosition = ground.transform.position;
-                    path.Add(ground.transform);
-                }
-                _targets[i].path.Add(i1, path);
-            }
-        }
+            notes = DataManager.instance.map
+        });
     }
 
     public void PathSelect(ObstacleHandler path)
     {
-        if (_paths.Contains(path))
+        if (path.id == 0)
         {
-            _paths.Remove(path);
-            UpdatePath();
             return;
         }
         
+        if (_paths.Contains(path))
+        {
+            var index = _paths.IndexOf(path);
+            while (_paths.Count > index)
+            {
+                var oldPath = _paths[index];
+                oldPath.Select(false);
+                _paths.RemoveAt(index);
+            }
+            UpdatePath();
+            return;
+        }
+
+        var existPath = _targets[_paths[^1].id].path.Keys.Contains(path.id);
+        if (!existPath)
+        {
+            return;
+        }
+        
+        path.GetComponent<Renderer>().material.color = Color.blue;
         _paths.Add(path);
         UpdatePath();
 
-        if (path.type == ObstacleHandler.TargetType.FinishPoint)
+        if (path.type == TargetType.FinishPoint)
         {
-            StartMove();
+            StartCoroutine(StartMove());
         }
     }
 
@@ -89,19 +71,92 @@ public class GameManager : MonoBehaviour
         
     }
 
-    private void StartMove()
+    private IEnumerator StartMove()
     {
+        var delayMove = new WaitForSeconds(0.5f);
+        var delayRotate = new WaitForSeconds(0.25f);
         if (_paths.Count == 0)
         {
-            return;
+            yield break;
         }
-        var target = _paths[0];
-        _paths.Remove(target);
-        _player.transform.DOMove(target.transform.position, 2).SetEase(Ease.Linear)
-            .OnStart(() =>
+
+        for (var i = 0; i < _paths.Count; i++)
+        {
+            if (i == 0)
             {
-                _player.transform.DOLookAt(target.transform.position, 0.5f).SetEase(Ease.Linear);
-            })
-            .OnComplete(StartMove);
+                continue;
+            }
+
+            var path = _targets[_paths[i - 1].id].path[_paths[i].id];
+            for (var j = 0; j < path.Count; j++)
+            {
+                if (j == 0)
+                {
+                    _player.transform.DOLookAt(path[j].position + Vector3.up, 0.25f).SetEase(Ease.Linear);
+                    yield return delayRotate;
+                }
+                _player.transform.DOMove(path[j].position + Vector3.up, 0.5f).SetEase(Ease.Linear);                yield return delayMove;
+            }
+        }
+        
+        // _player.transform.DOMove(target.transform.position, 2).SetEase(Ease.Linear)
+        //     .OnStart(() =>
+        //     {
+        //         _player.transform.DOLookAt(target.transform.position, 0.5f).SetEase(Ease.Linear);
+        //     });
+    }
+
+    private void GenerateLevel(Map map)
+    {
+        //Create note
+        for (int i = 0; i < map.notes.Count; i++)
+        {
+            var basePosition = Instantiate(_base, map.notes[i].position - Vector3.up, Quaternion.identity).Initialize(i, map.notes[i].type);
+            basePosition.gameObject.SetActive(true);
+            _targets.Add(new Target()
+            {
+                target = basePosition,
+                path = new Dictionary<int, List<Transform>>()
+            });
+
+            if (i == 0)
+            {
+                _paths.Add(basePosition);
+            }
+        }
+        
+        //Create ground
+        for (var i = 0; i < map.notes.Count; i++)
+        {
+            var baseNote = map.notes[i];
+            var relateNote = map.notes[i].relate;
+            for (var j = 0; j < relateNote.Count; j++)
+            {
+                //Calculate amount and scale of path
+                var note = relateNote[j];
+                var direction = (map.notes[note].position - baseNote.position).normalized;
+                var distance = Vector3.Distance(baseNote.position, map.notes[note].position);
+                var count = (int) distance;
+                var scale = distance / (int) distance;
+                Vector3 startPosition = baseNote.position - Vector3.up;
+                var path = new List<Transform>();
+                
+                for (var k = 0; k < count; k++)
+                {
+                    var ground = Instantiate(_ground, startPosition + direction * scale, Quaternion.identity);
+                    ground.SetActive(true);
+                    ground.transform.localScale = scale * Vector3.one;
+                    ground.transform.forward = direction;
+                    startPosition = ground.transform.position;
+                    path.Add(ground.transform);
+                }
+                _targets[i].path.Add(relateNote[j], path);
+            }
+        }
+    }
+
+    private void Complete()
+    {
+        
     }
 }

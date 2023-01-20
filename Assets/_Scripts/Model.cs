@@ -11,6 +11,7 @@ public class Map
 [Serializable]
 public class Note
 {
+    public TargetType type;
     public int heal;
     public Vector3 position;
     public List<int> relate;
@@ -24,6 +25,13 @@ public class Player
 
 public class Target
 {
-    public GameObject target;
+    public ObstacleHandler target;
     public Dictionary<int, List<Transform>> path;
+}
+
+
+public enum TargetType
+{
+    Path,
+    FinishPoint
 }
