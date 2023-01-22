@@ -32,6 +32,7 @@ public class Target
 
 public enum TargetType
 {
+    StartPoint,
     Path,
     FinishPoint
 }

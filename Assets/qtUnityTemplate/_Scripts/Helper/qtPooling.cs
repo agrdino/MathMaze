@@ -26,6 +26,18 @@ public class qtPooling : qtSingleton<qtPooling>
         return pool.Spawn(prefab, isForceCreateNew);
     }
     
+    public GameObject Spawn(string name, GameObject prefab, Vector3 position, bool isForceCreateNew = false)
+    {
+        _pools ??= new Dictionary<string, qtObjectPool>();
+        if (!_pools.ContainsKey(name))
+        {
+            _pools.Add(name, new qtObjectPool());
+        }
+
+        var pool = _pools[name];
+        return pool.Spawn(prefab, position, isForceCreateNew);
+    }
+    
     public GameObject Spawn(string name, GameObject prefab, Transform parent, bool isForceCreateNew = false)
     {
         _pools ??= new Dictionary<string, qtObjectPool>();
@@ -112,6 +124,31 @@ public class qtObjectPool
         }
 
         var newItem = Object.Instantiate(prefab);
+        _pool.Add(newItem);
+        return newItem;
+    }  
+    public GameObject Spawn(GameObject prefab, Vector3 position, bool isForceCreateNew)
+    {
+        _pool ??= new List<GameObject>();
+
+        if (isForceCreateNew)
+        {
+            var forceNewItem = Object.Instantiate(prefab);
+            _pool.Add(forceNewItem);
+            return forceNewItem;
+        }
+        
+        foreach (var item in _pool)
+        {
+            if (!item.activeSelf)
+            {
+                item.SetActive(true);
+                return item;
+            }
+        }
+
+        var newItem = Object.Instantiate(prefab);
+        newItem.transform.position = position;
         _pool.Add(newItem);
         return newItem;
     }  

@@ -27,7 +27,12 @@ public class ObstacleHandler : MonoBehaviour, IPointerClickHandler
 
     public ObstacleHandler Initialize(int id, TargetType type)
     {
-        _renderer.material.color = Color.black;
+        _renderer.material.color = type switch
+        {
+            TargetType.StartPoint => Color.yellow,
+            TargetType.Path => Color.black,
+            TargetType.FinishPoint => Color.green
+        };
         this.id = id;
         this.type = type;
         return this;
@@ -37,11 +42,16 @@ public class ObstacleHandler : MonoBehaviour, IPointerClickHandler
     {
         GameManager.instance.PathSelect(this);
     }
-
-    public void Select(bool isSelect)
+    
+    public void Select(bool isSelect = true)
     {
-        _renderer.material.color = isSelect ? Color.yellow : Color.black;
+        _renderer.material.color = type switch
+        {
+            TargetType.StartPoint => Color.yellow,
+            TargetType.Path => isSelect ? Color.blue : Color.black,
+            TargetType.FinishPoint => Color.green
+        };
     }
-
+    
     #endregion
 }

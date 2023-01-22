@@ -11,9 +11,9 @@ public class GameManager : MonoBehaviour
 
     public static GameManager instance;
 
-    [SerializeField] private PlayerHandler _playerHandler;
-    [SerializeField] private GameObject _ground;
-    [SerializeField] private ObstacleHandler _base;
+    private PlayerHandler _playerHandler;
+    private GameObject _ground;
+    private ObstacleHandler _base;
     private List<Target> _targets;
 
     private List<ObstacleHandler> _paths;
@@ -32,6 +32,7 @@ public class GameManager : MonoBehaviour
     {
         _paths ??= new List<ObstacleHandler>();
         _targets ??= new List<Target>();
+        InitObject();
         GenerateLevel(new Map()
         {
             notes = DataManager.instance.map
@@ -63,13 +64,20 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        var existPath = _targets[_paths[^1].id].path.Keys.Contains(path.id);
-        if (!existPath)
+        if (_paths.Count == 0)
         {
-            return;
+            
+        }
+        else
+        {
+            var existPath = _targets[_paths[^1].id].path.Keys.Contains(path.id);
+            if (!existPath)
+            {
+                return;
+            }
         }
 
-        path.GetComponent<Renderer>().material.color = Color.blue;
+        path.Select(true);
         _paths.Add(path);
         UpdatePath();
 
@@ -82,6 +90,19 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region ----- PRIVATE FUNCTION -----
+
+    private void InitObject()
+    {
+        if (_ground == null)
+        {
+            _ground = Resources.Load<GameObject>("_Prefab/Ground");
+        }
+
+        if (_base == null)
+        {
+            _base = Resources.Load<ObstacleHandler>("_Prefab/Base");
+        }
+    }
 
     private void UpdatePath()
     {
@@ -98,6 +119,7 @@ public class GameManager : MonoBehaviour
         var delayMove = new WaitForSeconds(0.5f);
         var delayRotate = new WaitForSeconds(0.25f);
 
+        var lastMove = _paths[^1];
         for (var i = 0; i < _paths.Count; i++)
         {
             if (i == 0)
@@ -118,6 +140,13 @@ public class GameManager : MonoBehaviour
                 yield return delayMove;
             }
         }
+        
+        _paths.ForEach(x => x.Select(false));
+        
+        _paths.Clear();
+        
+        lastMove.Select(true);
+        _paths.Add(lastMove);
     }
 
     private void GenerateLevel(Map map)
@@ -136,6 +165,12 @@ public class GameManager : MonoBehaviour
 
             if (i == 0)
             {
+                if (_playerHandler == null)
+                {
+                    _playerHandler = Instantiate(Resources.Load<PlayerHandler>("_Prefab/Player"));
+                }
+
+                _playerHandler.gameObject.transform.position = basePosition.transform.position + Vector3.up;
                 _paths.Add(basePosition);
             }
         }
@@ -158,7 +193,7 @@ public class GameManager : MonoBehaviour
 
                 for (var k = 0; k < count; k++)
                 {
-                    var ground = Instantiate(_ground, startPosition + direction * scale, Quaternion.identity);
+                    var ground = qtPooling.Instance.Spawn("Ground", _ground, startPosition + direction * scale);
                     ground.SetActive(true);
                     ground.transform.localScale = scale * Vector3.one;
                     ground.transform.forward = direction;
