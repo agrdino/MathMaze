@@ -292,7 +292,7 @@ RectTransform:
   m_Children:
   - {fileID: 498705313}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -412,7 +412,6 @@ GameObject:
   - component: {fileID: 519614340}
   - component: {fileID: 519614339}
   - component: {fileID: 519614341}
-  - component: {fileID: 519614342}
   m_Layer: 0
   m_Name: Scripts
   m_TagString: Untagged
@@ -432,9 +431,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d7a0b9f5af4f409a9e95e1ab3c3be6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerHandler: {fileID: 0}
-  _ground: {fileID: 0}
-  _base: {fileID: 0}
 --- !u!4 &519614340
 Transform:
   m_ObjectHideFlags: 0
@@ -448,7 +444,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &519614341
 MonoBehaviour:
@@ -469,28 +465,14 @@ MonoBehaviour:
     heal: 0
     position: {x: -5, y: 0, z: 0}
     relate: 0100000002000000
-  - type: 0
+  - type: 1
     heal: 0
     position: {x: 0, y: 0, z: 2}
     relate: 02000000
-  - type: 1
+  - type: 2
     heal: 0
     position: {x: 5, y: 0, z: 0}
     relate: 
---- !u!114 &519614342
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 519614338}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16bdff8ede15135478ae88813623f314, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  startScene: 1
-  stackPopup: []
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -583,7 +565,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!1 &963194225
 GameObject:
@@ -715,7 +697,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1530986749
 GameObject:
@@ -783,7 +765,53 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1797093478
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1797093482}
+  - component: {fileID: 1797093479}
+  m_Layer: 0
+  m_Name: UIManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1797093479
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1797093478}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16bdff8ede15135478ae88813623f314, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startScene: 1
+  stackPopup: []
+--- !u!4 &1797093482
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1797093478}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1598377609631803981
 PrefabInstance:
@@ -802,7 +830,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3468659531978406357, guid: f08b23806623f4dd596167c332fc40a1, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3468659531978406357, guid: f08b23806623f4dd596167c332fc40a1, type: 3}
       propertyPath: m_AnchorMax.x

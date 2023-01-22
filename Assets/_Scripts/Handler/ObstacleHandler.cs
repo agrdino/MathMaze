@@ -49,7 +49,7 @@ public class ObstacleHandler : MonoBehaviour, IPointerClickHandler
         {
             TargetType.StartPoint => Color.yellow,
             TargetType.Path => isSelect ? Color.blue : Color.black,
-            TargetType.FinishPoint => Color.green
+            TargetType.FinishPoint => isSelect ? Color.blue : Color.green
         };
     }
     

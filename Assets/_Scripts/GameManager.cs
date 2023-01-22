@@ -76,8 +76,8 @@ public class GameManager : MonoBehaviour
                 return;
             }
         }
-
-        path.Select(true);
+        
+        path.Select();
         _paths.Add(path);
         UpdatePath();
 
@@ -141,10 +141,14 @@ public class GameManager : MonoBehaviour
             }
         }
         
+        if (lastMove.type == TargetType.FinishPoint)
+        {
+            _paths.Clear();
+            yield break;
+        }
+        
         _paths.ForEach(x => x.Select(false));
-        
         _paths.Clear();
-        
         lastMove.Select(true);
         _paths.Add(lastMove);
     }
