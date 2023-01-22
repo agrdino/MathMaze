@@ -1,9 +1,4 @@
-using System.Collections.Generic;
-using _Scripts.System;
-using UnityEngine;
-using static qtHelper;
-
-namespace _Scripts.Scene.MainMenuScene
+namespace _Scripts.Scene
 {
     public class MenuScene : sceneBase
     {

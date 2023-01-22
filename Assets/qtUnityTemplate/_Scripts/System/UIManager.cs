@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using _Prefab.Popup;
 using _Scripts.HUD;
-using _Scripts.qtLib;
 using _Scripts.Scene;
 using DG.Tweening;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using static qtHelper;
@@ -300,6 +297,73 @@ namespace _Scripts.System
             }
             
             return (T)tempScene;
+        }
+        
+        public void ShowScene(qtScene.EScene scene)
+        {
+            _scenes ??= new Dictionary<qtScene.EScene, sceneBase>();
+            
+            sceneBase tempScene = null;
+            var showScene = qtScene.sceneData[scene];
+            _currentSceneData = showScene;
+            if (!_scenes.ContainsKey(scene))
+            {
+                var temp = FindObjectInChildren(_canvas, showScene.scene.name);
+                if (temp == null)
+                {
+                    var sceneConfig = qtScene.sceneData[scene];
+                    tempScene = Instantiate(sceneConfig.scene, _canvas.transform).GetComponent<sceneBase>();
+                    tempScene.gameObject.name = sceneConfig.scene.name;
+                    tempScene.InitObject();
+                    _scenes.Add(scene, tempScene);
+                }
+                else
+                {
+                    tempScene = temp.GetComponent<sceneBase>();
+                    tempScene.InitObject();
+                    _scenes.Add(scene, tempScene);
+                }
+            }
+            else
+            {
+                tempScene = _scenes[scene];
+                if (tempScene.gameObject.activeSelf)
+                {
+                    FadingScene(tempScene, showScene.fadingIn, showScene.fadingOut, showScene.showHUD, showScene.hudId,
+                        () =>
+                        {
+                            tempScene.Hide();
+                            tempScene.Initialize();
+                        });
+                    return;
+                }
+            }
+            tempScene.gameObject.SetActive(false);
+
+
+            if (currentScene != null)
+            {
+                var oldScene = currentScene;
+                FadingScene(tempScene, showScene.fadingIn, showScene.fadingOut, showScene.showHUD, showScene.hudId,
+                    () =>
+                    {
+                        oldScene.Hide();
+                        tempScene.Initialize();
+                    });
+            }
+            else
+            {
+                currentScene = tempScene;
+                if (showScene.showHUD && showScene.hudId != qtScene.EHud.None)
+                {
+                    if (currentHUD == null || currentHUD.id != showScene.hudId)
+                    {
+                        currentHUD = ShowHUD(showScene.hudId);
+                    }
+                }
+                tempScene.Initialize();
+                tempScene.Show();
+            }
         }
 
         public T GetScene<T>(qtScene.EScene scene) where T : sceneBase

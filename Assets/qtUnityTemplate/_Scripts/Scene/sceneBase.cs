@@ -1,4 +1,3 @@
-using _Scripts.Scene.MainMenuScene;
 using _Scripts.System;
 using UnityEngine;
 
@@ -15,6 +14,8 @@ namespace _Scripts.Scene
         public abstract void InitObject();
         protected abstract void OnExit();
 
+        protected virtual void OnUpdate(){}
+        
         public virtual void OnBack()
         {
             //Temp
