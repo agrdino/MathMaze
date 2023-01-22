@@ -5,6 +5,9 @@ using UnityEngine.EventSystems;
 
 public class ObstacleHandler : MonoBehaviour, IPointerClickHandler
 {
+
+    #region ----- VARIALBE -----
+
     [SerializeField] private Renderer _renderer;
     public TargetType type
     {
@@ -17,6 +20,11 @@ public class ObstacleHandler : MonoBehaviour, IPointerClickHandler
         get;
         private set;
     }
+
+    #endregion
+
+    #region ----- PUBLIC FUNCTION -----
+
     public ObstacleHandler Initialize(int id, TargetType type)
     {
         _renderer.material.color = Color.black;
@@ -34,4 +42,6 @@ public class ObstacleHandler : MonoBehaviour, IPointerClickHandler
     {
         _renderer.material.color = isSelect ? Color.yellow : Color.black;
     }
+
+    #endregion
 }

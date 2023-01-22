@@ -49,7 +49,7 @@ namespace _Scripts.System
         private Dictionary<qtScene.EPopup, popBase> _popups;
         private Dictionary<qtScene.EScene, sceneBase> _scenes;
         private Dictionary<qtScene.EHud, hudBase> _huds;
-        public List<popBase> stackPopup; 
+        [HideInInspector] public List<popBase> stackPopup; 
         // public CultureInfo culture = new CultureInfo("ja-JP", true);
         public const string DayFormat = "MM/dd の声かけ";
         #endregion
@@ -58,22 +58,6 @@ namespace _Scripts.System
         
         private void Start()
         {
-            
-        
-#if CHEATER
-            CheatTool.Instance.Init();
-            CheatTool.Instance.ShowDebugButton();
-#else
-        Debug.unityLogger.logEnabled = false;
-#endif
-
-#if DEV
-        Debug.Log("Devvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv");
-#else
-        Debug.Log("QCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
-
-#endif
-            
             InitObject();
             Initialize();
             ShowScene<sceneBase>(startScene);
@@ -82,6 +66,10 @@ namespace _Scripts.System
         private void InitObject()
         {
             _canvasOnTop = FindObjectInRootIncludingInactive("CanvasOnTop");
+            if (_canvasOnTop == null)
+            {
+                _canvasOnTop = Instantiate(Resources.Load<GameObject>("CanvasOnTop"));
+            }
             _canvas = FindObjectInRootIncludingInactive("MainCanvas");
             _loadingIndicator = Instantiate(Resources.Load<RectTransform>("imgLoading"), _canvasOnTop.transform);
             _loadingIndicator.gameObject.SetActive(false);

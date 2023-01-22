@@ -6,14 +6,22 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+
+    #region ----- VARIABLE ------
+
     public static GameManager instance;
 
-    [SerializeField] private PlayerHandler _player;
+    [SerializeField] private PlayerHandler _playerHandler;
     [SerializeField] private GameObject _ground;
     [SerializeField] private ObstacleHandler _base;
     private List<Target> _targets;
 
     private List<ObstacleHandler> _paths;
+
+    private Player _player;
+    #endregion
+
+    #region ----- UNITY EVENT -----
 
     private void Awake()
     {
@@ -30,13 +38,17 @@ public class GameManager : MonoBehaviour
         });
     }
 
+    #endregion
+
+    #region ----- PUBLIC FUNCTION -----
+
     public void PathSelect(ObstacleHandler path)
     {
         if (path.id == 0)
         {
             return;
         }
-        
+
         if (_paths.Contains(path))
         {
             var index = _paths.IndexOf(path);
@@ -46,6 +58,7 @@ public class GameManager : MonoBehaviour
                 oldPath.Select(false);
                 _paths.RemoveAt(index);
             }
+
             UpdatePath();
             return;
         }
@@ -55,30 +68,35 @@ public class GameManager : MonoBehaviour
         {
             return;
         }
-        
+
         path.GetComponent<Renderer>().material.color = Color.blue;
         _paths.Add(path);
         UpdatePath();
 
-        if (path.type == TargetType.FinishPoint)
-        {
-            StartCoroutine(StartMove());
-        }
+        // if (path.type == TargetType.FinishPoint)
+        // {
+        //     StartCoroutine(StartMove());
+        // }
     }
+
+    #endregion
+
+    #region ----- PRIVATE FUNCTION -----
 
     private void UpdatePath()
     {
-        
+
     }
 
-    private IEnumerator StartMove()
+    public IEnumerator StartMove()
     {
-        var delayMove = new WaitForSeconds(0.5f);
-        var delayRotate = new WaitForSeconds(0.25f);
-        if (_paths.Count == 0)
+        if (_paths.Count <= 1)
         {
             yield break;
         }
+
+        var delayMove = new WaitForSeconds(0.5f);
+        var delayRotate = new WaitForSeconds(0.25f);
 
         for (var i = 0; i < _paths.Count; i++)
         {
@@ -92,18 +110,14 @@ public class GameManager : MonoBehaviour
             {
                 if (j == 0)
                 {
-                    _player.transform.DOLookAt(path[j].position + Vector3.up, 0.25f).SetEase(Ease.Linear);
+                    _playerHandler.transform.DOLookAt(path[j].position + Vector3.up, 0.25f).SetEase(Ease.Linear);
                     yield return delayRotate;
                 }
-                _player.transform.DOMove(path[j].position + Vector3.up, 0.5f).SetEase(Ease.Linear);                yield return delayMove;
+
+                _playerHandler.transform.DOMove(path[j].position + Vector3.up, 0.5f).SetEase(Ease.Linear);
+                yield return delayMove;
             }
         }
-        
-        // _player.transform.DOMove(target.transform.position, 2).SetEase(Ease.Linear)
-        //     .OnStart(() =>
-        //     {
-        //         _player.transform.DOLookAt(target.transform.position, 0.5f).SetEase(Ease.Linear);
-        //     });
     }
 
     private void GenerateLevel(Map map)
@@ -111,7 +125,8 @@ public class GameManager : MonoBehaviour
         //Create note
         for (int i = 0; i < map.notes.Count; i++)
         {
-            var basePosition = Instantiate(_base, map.notes[i].position - Vector3.up, Quaternion.identity).Initialize(i, map.notes[i].type);
+            var basePosition = Instantiate(_base, map.notes[i].position - Vector3.up, Quaternion.identity)
+                .Initialize(i, map.notes[i].type);
             basePosition.gameObject.SetActive(true);
             _targets.Add(new Target()
             {
@@ -124,7 +139,7 @@ public class GameManager : MonoBehaviour
                 _paths.Add(basePosition);
             }
         }
-        
+
         //Create ground
         for (var i = 0; i < map.notes.Count; i++)
         {
@@ -140,7 +155,7 @@ public class GameManager : MonoBehaviour
                 var scale = distance / (int) distance;
                 Vector3 startPosition = baseNote.position - Vector3.up;
                 var path = new List<Transform>();
-                
+
                 for (var k = 0; k < count; k++)
                 {
                     var ground = Instantiate(_ground, startPosition + direction * scale, Quaternion.identity);
@@ -150,6 +165,7 @@ public class GameManager : MonoBehaviour
                     startPosition = ground.transform.position;
                     path.Add(ground.transform);
                 }
+
                 _targets[i].path.Add(relateNote[j], path);
             }
         }
@@ -157,6 +173,8 @@ public class GameManager : MonoBehaviour
 
     private void Complete()
     {
-        
+
     }
+
+    #endregion
 }

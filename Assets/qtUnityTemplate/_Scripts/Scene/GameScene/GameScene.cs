@@ -1,10 +1,13 @@
+using _Scripts.qtLib;
 using _Scripts.System;
-using NotImplementedException = System.NotImplementedException;
+using UnityEngine;
 
 namespace _Scripts.Scene.GameScene
 {
     public class GameScene : sceneBase
     {
+        [SerializeField] private qtButton _btnMove;
+        
         public override void Initialize()
         {
             base.Initialize();
@@ -12,6 +15,7 @@ namespace _Scripts.Scene.GameScene
 
         protected override void InitEvent()
         {
+            _btnMove.onClick.AddListener(OnButtonMoveClick);
         }
 
         public override void InitObject()
@@ -20,10 +24,19 @@ namespace _Scripts.Scene.GameScene
 
         protected override void OnExit()
         {
-            
+            _btnMove.onClick.RemoveAllListeners();   
         }
 
         #region ----- ANIMATION -----
+
+        #endregion
+
+        #region ----- BUTTON EVENT -----
+
+        private void OnButtonMoveClick()
+        {
+            StartCoroutine(GameManager.instance.StartMove());
+        }
 
         #endregion
     }
