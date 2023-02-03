@@ -1,3 +1,4 @@
+using System;
 using _Scripts.System;
 using UnityEngine;
 
@@ -15,7 +16,12 @@ namespace _Scripts.Scene
         protected abstract void OnExit();
 
         protected virtual void OnUpdate(){}
-        
+
+        private void Update()
+        {
+            OnUpdate();
+        }
+
         public virtual void OnBack()
         {
             //Temp

@@ -333,7 +333,7 @@ MonoBehaviour:
   _txtStep: {fileID: 8011015515868687495}
   _txtLevel: {fileID: 2210648654946556483}
   _btnMove: {fileID: 246971060533016671}
-  _btnReset: {fileID: 7609519390790239845}
+  _btnRestartLevel: {fileID: 7609519390790239845}
   _btnBack: {fileID: 6339449330566733499}
 --- !u!1 &1459894171141028470
 GameObject:
@@ -349,7 +349,7 @@ GameObject:
   - component: {fileID: 3490874926685005795}
   - component: {fileID: 7609519390790239845}
   m_Layer: 5
-  m_Name: btnReset
+  m_Name: btnRestartLevel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1054,7 +1054,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: -75}
-  m_SizeDelta: {x: 300, y: 150}
+  m_SizeDelta: {x: 500, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6416965538230139307
 CanvasRenderer:

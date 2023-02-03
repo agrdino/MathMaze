@@ -21,11 +21,17 @@ public class ObstacleHandler : MonoBehaviour, IPointerClickHandler
         private set;
     }
 
+    public int heal
+    {
+        get;
+        private set;
+    }
+
     #endregion
 
     #region ----- PUBLIC FUNCTION -----
 
-    public ObstacleHandler Initialize(int id, TargetType type)
+    public ObstacleHandler Initialize(int id, TargetType type, int heal)
     {
         _renderer.material.color = type switch
         {
@@ -35,11 +41,16 @@ public class ObstacleHandler : MonoBehaviour, IPointerClickHandler
         };
         this.id = id;
         this.type = type;
+        this.heal = heal;
         return this;
     }
     
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (heal == 0)
+        {
+            return;
+        }
         GameManager.instance.PathSelect(this);
     }
     
@@ -52,6 +63,5 @@ public class ObstacleHandler : MonoBehaviour, IPointerClickHandler
             TargetType.FinishPoint => isSelect ? Color.blue : Color.green
         };
     }
-    
     #endregion
 }

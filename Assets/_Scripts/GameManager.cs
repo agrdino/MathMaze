@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,11 @@ public class GameManager : MonoBehaviour
     private List<ObstacleHandler> _paths;
 
     private Player _player;
+
+    public Action<float, int> evtStartGame;
+    public Action<int> evtUpdateGame;
+    
+    private int _step;
     #endregion
 
     #region ----- UNITY EVENT -----
@@ -87,28 +93,6 @@ public class GameManager : MonoBehaviour
         // }
     }
 
-    #endregion
-
-    #region ----- PRIVATE FUNCTION -----
-
-    private void InitObject()
-    {
-        if (_ground == null)
-        {
-            _ground = Resources.Load<GameObject>("_Prefab/Ground");
-        }
-
-        if (_base == null)
-        {
-            _base = Resources.Load<ObstacleHandler>("_Prefab/Base");
-        }
-    }
-
-    private void UpdatePath()
-    {
-
-    }
-
     public IEnumerator StartMove()
     {
         if (_paths.Count <= 1)
@@ -127,7 +111,8 @@ public class GameManager : MonoBehaviour
                 continue;
             }
 
-            var path = _targets[_paths[i - 1].id].path[_paths[i].id];
+            var note = _targets[_paths[i - 1].id]; 
+            var path = note.path[_paths[i].id];
             for (var j = 0; j < path.Count; j++)
             {
                 if (j == 0)
@@ -136,8 +121,29 @@ public class GameManager : MonoBehaviour
                     yield return delayRotate;
                 }
 
-                _playerHandler.transform.DOMove(path[j].position + Vector3.up, 0.5f).SetEase(Ease.Linear);
+                _playerHandler.transform.DOMove(path[j].position + Vector3.up, 0.5f).SetEase(Ease.Linear)
+                    .OnComplete(() =>
+                    {
+                        _player.heal -= 1;
+                    });
+                
+                Debug.LogError(_player.heal);
+                if (_player.heal <= 0)
+                {
+                    Debug.LogError("Lose");
+                    yield break;
+                }
+
                 yield return delayMove;
+            }
+
+            if (_player.heal > note.target.heal)
+            {
+                _player.heal += note.target.heal;
+            }
+            else
+            {
+                Debug.LogError("Lose");
             }
         }
         
@@ -148,18 +154,57 @@ public class GameManager : MonoBehaviour
         }
         
         _paths.ForEach(x => x.Select(false));
+        _step += _paths.Count;
         _paths.Clear();
         lastMove.Select(true);
         _paths.Add(lastMove);
     }
 
+    public void RestartLevel()
+    {
+        _playerHandler.transform.DOKill();
+        _paths.ForEach(x => x.Select(false));
+        var startPosition = _targets[0].target;
+        _playerHandler.transform.position = startPosition.transform.position + Vector3.up;
+        _playerHandler.transform.eulerAngles = Vector3.zero;
+        _targets.ForEach(x => x.target.Select(false));
+        _paths.Clear();
+        _paths.Add(startPosition);
+        _step = 0; 
+    }
+
+    #endregion
+
+    #region ----- PRIVATE FUNCTION -----
+
+    private void InitObject()
+    {
+        _player ??= new Player();
+        if (_ground == null)
+        {
+            _ground = Resources.Load<GameObject>("_Prefab/Ground");
+        }
+
+        if (_base == null)
+        {
+            _base = Resources.Load<ObstacleHandler>("_Prefab/Base");
+        }
+    }
+
+    private void UpdatePath()
+    {
+        evtUpdateGame?.Invoke(_step + _paths.Count - 1);
+    }
+    
     private void GenerateLevel(Map map)
     {
+        _step = 0;
+        
         //Create note
         for (int i = 0; i < map.notes.Count; i++)
         {
             var basePosition = Instantiate(_base, map.notes[i].position - Vector3.up, Quaternion.identity)
-                .Initialize(i, map.notes[i].type);
+                .Initialize(i, map.notes[i].type, map.notes[i].heal);
             basePosition.gameObject.SetActive(true);
             _targets.Add(new Target()
             {
@@ -208,6 +253,8 @@ public class GameManager : MonoBehaviour
                 _targets[i].path.Add(relateNote[j], path);
             }
         }
+        
+        evtStartGame?.Invoke(Time.time, 0);
     }
 
     private void Complete()

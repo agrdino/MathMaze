@@ -12,7 +12,7 @@ namespace _Scripts.Scene
         [SerializeField] private TextMeshProUGUI _txtLevel;
 
         [SerializeField] private qtButton _btnMove;
-        [SerializeField] private qtButton _btnReset;
+        [SerializeField] private qtButton _btnRestartLevel;
         [SerializeField] private qtButton _btnBack;
         
         
@@ -28,8 +28,11 @@ namespace _Scripts.Scene
         protected override void InitEvent()
         {
             _btnMove.onClick.AddListener(OnButtonMoveClick);
-            _btnReset.onClick.AddListener(OnButtonResetClick);
+            _btnRestartLevel.onClick.AddListener(OnButtonRestartLevelClick);
             _btnBack.onClick.AddListener(OnButtonBackClick);
+
+            GameManager.instance.evtStartGame += StartGame;
+            GameManager.instance.evtUpdateGame += UpdateGame;
         }
 
         public override void InitObject()
@@ -39,14 +42,17 @@ namespace _Scripts.Scene
         protected override void OnExit()
         {
             _btnMove.onClick.RemoveAllListeners();   
-            _btnReset.onClick.RemoveAllListeners();
+            _btnRestartLevel.onClick.RemoveAllListeners();
             _btnBack.onClick.RemoveAllListeners();
+            
+            GameManager.instance.evtStartGame -= StartGame;
+            GameManager.instance.evtUpdateGame -= UpdateGame;
         }
 
         protected override void OnUpdate()
         {
             base.OnUpdate();
-            _txtTime.text = $"{(int) (Time.time - _time) / 60} : {(int)(Time.time - _time) % 60}";
+            _txtTime.text = $"{(int) (Time.time - _time) / 60 :00} : {(int)(Time.time - _time) % 60 :00}";
         }
 
         #endregion
@@ -79,9 +85,9 @@ namespace _Scripts.Scene
             StartCoroutine(GameManager.instance.StartMove());
         }
 
-        private void OnButtonResetClick()
+        private void OnButtonRestartLevelClick()
         {
-            
+            GameManager.instance.RestartLevel();
         }
 
         private void OnButtonBackClick()

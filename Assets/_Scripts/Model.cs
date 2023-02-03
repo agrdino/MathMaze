@@ -21,6 +21,11 @@ public class Note
 public class Player
 {
     public int heal;
+
+    public Player()
+    {
+        heal = 10;
+    }
 }
 
 public class Target
